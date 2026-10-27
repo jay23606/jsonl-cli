@@ -52,3 +52,8 @@ export function parseMaxInputBytes(args, def = DEFAULT_MAX_INPUT_BYTES) {
   const n = Number(arg.split("=")[1]);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
 }
+
+export function checkJsonl(text) {
+  const r = parseJsonl(text);
+  return { ok: r.invalid === 0, errors: r.errors };
+}

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseJsonl, validateLine, countValid, checkInputSize, parseMaxInputBytes } from "../src/index.js";
+import { parseJsonl, validateLine, countValid, checkInputSize, parseMaxInputBytes, checkJsonl } from "../src/index.js";
 
 test("validateLine accepts valid JSON", () => {
   assert.deepEqual(validateLine('{"a":1}'), { ok: true, error: null });
@@ -65,4 +65,16 @@ test("parseMaxInputBytes parses --max-input-bytes flag", () => {
   assert.equal(parseMaxInputBytes([], 10 * 1024 * 1024), 10 * 1024 * 1024);
   assert.equal(parseMaxInputBytes(["--max-input-bytes=100"], 10), 100);
   assert.equal(parseMaxInputBytes(["--max-input-bytes=abc"], 10), 10);
+});
+
+test("checkJsonl returns ok for valid input", () => {
+  assert.deepEqual(checkJsonl('{"a":1}\n{"b":2}\n'), { ok: true, errors: [] });
+});
+
+test("checkJsonl collects errors for invalid lines", () => {
+  const r = checkJsonl('{"a":1}\n{bad\n');
+  assert.equal(r.ok, false);
+  assert.equal(r.errors.length, 1);
+  assert.equal(r.errors[0].line, 2);
+  assert.match(r.errors[0].error, /invalid json/i);
 });
