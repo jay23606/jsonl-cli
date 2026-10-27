@@ -35,3 +35,20 @@ export function parseJsonl(text) {
 export function countValid(text) {
   return parseJsonl(text).valid;
 }
+
+export const DEFAULT_MAX_INPUT_BYTES = 10 * 1024 * 1024;
+
+export function checkInputSize(text, maxBytes = DEFAULT_MAX_INPUT_BYTES) {
+  const bytes = Buffer.byteLength(String(text ?? ""), "utf8");
+  if (bytes > maxBytes) {
+    return { ok: false, error: `input exceeds ${maxBytes} bytes (${bytes} bytes)` };
+  }
+  return { ok: true, error: null };
+}
+
+export function parseMaxInputBytes(args, def = DEFAULT_MAX_INPUT_BYTES) {
+  const arg = (args || []).find((a) => a.startsWith("--max-input-bytes="));
+  if (!arg) return def;
+  const n = Number(arg.split("=")[1]);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
+}

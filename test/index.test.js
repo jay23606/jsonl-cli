@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseJsonl, validateLine, countValid } from "../src/index.js";
+import { parseJsonl, validateLine, countValid, checkInputSize, parseMaxInputBytes } from "../src/index.js";
 
 test("validateLine accepts valid JSON", () => {
   assert.deepEqual(validateLine('{"a":1}'), { ok: true, error: null });
@@ -43,4 +43,26 @@ test("parseJsonl handles trailing newline without extra empty line", () => {
 
 test("countValid returns number of valid lines", () => {
   assert.equal(countValid('{"a":1}\n{bad\n{"b":2}'), 2);
+});
+
+test("checkInputSize accepts input within cap", () => {
+  assert.deepEqual(checkInputSize("abc", 10), { ok: true, error: null });
+});
+
+test("checkInputSize rejects input over cap", () => {
+  const r = checkInputSize("a".repeat(11), 10);
+  assert.equal(r.ok, false);
+  assert.match(r.error, /exceeds/i);
+});
+
+test("checkInputSize counts bytes not chars", () => {
+  // 'é' is 2 bytes in UTF-8
+  assert.deepEqual(checkInputSize("é", 2), { ok: true, error: null });
+  assert.equal(checkInputSize("é", 1).ok, false);
+});
+
+test("parseMaxInputBytes parses --max-input-bytes flag", () => {
+  assert.equal(parseMaxInputBytes([], 10 * 1024 * 1024), 10 * 1024 * 1024);
+  assert.equal(parseMaxInputBytes(["--max-input-bytes=100"], 10), 100);
+  assert.equal(parseMaxInputBytes(["--max-input-bytes=abc"], 10), 10);
 });
