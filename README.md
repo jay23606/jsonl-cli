@@ -15,6 +15,17 @@ jsonl file.jsonl
 cat file.jsonl | jsonl --json
 ```
 
+### JSON output
+
+`--json` and `--check --json` print the same object, with keys in this order:
+
+```json
+{ "ok": true, "total": 3, "valid": 3, "invalid": 0, "errors": [] }
+```
+
+- `ok` is `true` exactly when `invalid` is `0`.
+- `errors` lists `{ "line", "error" }` for each invalid line.
+
 ## Development
 
 ```sh

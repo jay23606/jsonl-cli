@@ -29,7 +29,7 @@ export function parseJsonl(text) {
       errors.push({ line: idx + 1, error: r.error });
     }
   });
-  return { total: lines.length, valid, invalid, errors };
+  return { ok: invalid === 0, total: lines.length, valid, invalid, errors };
 }
 
 export function countValid(text) {

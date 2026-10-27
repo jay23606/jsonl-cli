@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { parseJsonl, validateLine, countValid, checkInputSize, parseMaxInputBytes, checkJsonl } from "../src/index.js";
 
 test("validateLine accepts valid JSON", () => {
@@ -77,4 +79,16 @@ test("checkJsonl collects errors for invalid lines", () => {
   assert.equal(r.errors.length, 1);
   assert.equal(r.errors[0].line, 2);
   assert.match(r.errors[0].error, /invalid json/i);
+});
+
+test("--json and --check --json emit the same top-level keys", () => {
+  const bin = fileURLToPath(new URL("../bin/jsonl.js", import.meta.url));
+  const input = '{"a":1}\n{bad\n';
+  const run = (args) => JSON.parse(spawnSync(process.execPath, [bin, ...args], { input, encoding: "utf8" }).stdout);
+  const summary = run(["--json"]);
+  const check = run(["--check", "--json"]);
+  const keys = ["ok", "total", "valid", "invalid", "errors"];
+  assert.deepEqual(Object.keys(summary), keys);
+  assert.deepEqual(Object.keys(check), keys);
+  assert.equal(summary.ok, summary.invalid === 0);
 });

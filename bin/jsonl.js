@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
-import { parseJsonl, checkInputSize, parseMaxInputBytes, checkJsonl } from "../src/index.js";
+import { parseJsonl, checkInputSize, parseMaxInputBytes } from "../src/index.js";
 
 const args = process.argv.slice(2);
 if (args.includes("-h") || args.includes("--help")) {
-  console.log(`jsonl — validate and inspect JSON Lines (JSONL)\n\nUsage:\n  jsonl [file] [options]\n  cat file.jsonl | jsonl [options]\n\nOptions:\n  --json     Machine-readable summary\n  --check          Exit 1 on invalid input (CI mode), silent on success\n  -h, --help Show this help\n`);
+  console.log(`jsonl — validate and inspect JSON Lines (JSONL)\n\nUsage:\n  jsonl [file] [options]\n  cat file.jsonl | jsonl [options]\n\nOptions:\n  --json     Machine-readable summary: { ok, total, valid, invalid, errors }\n  --check          Exit 1 on invalid input (CI mode), silent on success\n  -h, --help Show this help\n`);
   process.exit(0);
 }
 
@@ -17,9 +17,9 @@ if (!sizeCheck.ok) {
   process.exit(1);
 }
 if (args.includes("--check")) {
-  const c = checkJsonl(text);
+  const c = parseJsonl(text);
   if (args.includes("--json")) {
-    console.log(JSON.stringify({ ok: c.ok, errors: c.errors }));
+    console.log(JSON.stringify(c));
   } else if (!c.ok) {
     for (const e of c.errors) console.error(`line ${e.line}: ${e.error}`);
   }
