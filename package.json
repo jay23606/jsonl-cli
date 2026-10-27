@@ -1,0 +1,12 @@
+{
+  "name": "@yunaremaia/jsonl-cli",
+  "version": "0.1.0",
+  "description": "Lightweight CLI to validate, count, and inspect JSON Lines (JSONL) files.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": { "jsonl": "bin/jsonl.js" },
+  "scripts": { "test": "node --test", "lint": "node --check src/index.js && node --check bin/jsonl.js" },
+  "keywords": ["jsonl", "json-lines", "cli", "validate"],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}
